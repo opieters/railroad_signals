@@ -243,3 +243,48 @@ module front_plate() {
         front_plate_rounded_corners(total_w=13.75-2, partial_w=9.25-2, partial_h=7.75-1, corner_r=3.45-1, total_h=17.25-2, th=4);
     }
 }
+
+module foot(foot_width = 700/87, foot_width_small = 300/87, foot_depth = 850/87, foot_height1 = 100/87, foot_height2 = 100/87) {
+
+    union() {
+        translate([0,0,foot_height1])
+        linear_extrude(height = foot_height1, scale = foot_width_small/foot_width)
+        translate(-[foot_width,foot_depth]/2)
+        square([foot_width,foot_depth]);
+
+        linear_extrude(height = foot_height2)
+        translate(-[foot_width,foot_depth]/2)
+        square([foot_width,foot_depth]);
+    }
+}
+
+module main_beam(main_beam_width,main_beam_depth,main_beam_opening_depth,total_height,main_beam_step_width,main_beam_step_height,main_beam_opening_height) {
+    translate([-main_beam_width/2,0,0]){
+        cube([main_beam_width, (main_beam_depth-main_beam_opening_depth)/2, total_height]);
+        translate([0, main_beam_opening_depth+(main_beam_depth-main_beam_opening_depth)/2, 0])
+        cube([main_beam_width, (main_beam_depth-main_beam_opening_depth)/2, total_height]);
+
+        for(i = [0:11]) {
+        translate([(main_beam_width-main_beam_step_width)/2,0,total_height-main_beam_step_height-i*main_beam_opening_height])
+        cube([main_beam_step_width,main_beam_depth, main_beam_step_height]);
+        }
+    }
+}
+
+module front_grid(grid_beam_width, grid_beam_height, n_beams_y, n_beams_x,front_grid_width) {
+    grid_spacing = (front_grid_width - grid_beam_width*n_beams_x) / (n_beams_x-1);
+
+    translate(-[0,grid_beam_width,0])
+    translate(-[0,(grid_spacing+grid_beam_width)*(n_beams_y-1),0])
+    union() {
+        for(i = [0:n_beams_y-1]) {
+            translate([0,(grid_spacing+grid_beam_width)*i,0])
+            cube([grid_spacing*(n_beams_x-1)+grid_beam_width*n_beams_x,grid_beam_width,grid_beam_height]);
+        }
+
+        for(i = [0:n_beams_x-1]) {
+            translate([(grid_spacing+grid_beam_width)*i,0,0])
+            cube([grid_beam_width,grid_spacing*(n_beams_y-1)+grid_beam_width*n_beams_y,grid_beam_height]);
+        }
+    }
+}
