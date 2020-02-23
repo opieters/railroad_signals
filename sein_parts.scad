@@ -72,67 +72,174 @@ module light_cap() {
 }
 
 module front_plate_rounded_corners(total_w=13.75, partial_w=9.25, partial_h=7.75, corner_r=3.45, total_h=17.25, th=2) {
-linear_extrude(height=th)
-translate([0,corner_r,0])
-union() {
+    linear_extrude(height=th)
+    translate([0,corner_r,0])
+    union() {
 
-square([partial_w, total_h-2*corner_r]);
+        square([partial_w, total_h-2*corner_r]);
 
-translate([corner_r,0,0])
-rotate(v=[0,0,1], a=180)
-intersection(){
-    square(2*corner_r);
-circle(r=corner_r);
-}
-
-//translate([3.45,0,0])
-translate([partial_w-corner_r,0,0])
-rotate(v=[0,0,1], a=-90)
-intersection(){
-    square(2*corner_r);
-circle(r=corner_r);
-}
-
-translate([corner_r,total_h-2*corner_r,0])
-rotate(v=[0,0,1], a=90)
-intersection(){
-    square(2*corner_r);
-circle(r=corner_r);
-}
-
-translate([corner_r,-corner_r,0])
-square([partial_w-2*corner_r, corner_r]);
-
-translate([corner_r, total_h-2*corner_r, 0])
-square([partial_w-corner_r, corner_r]);
-
-rico = [for(i = [0:360-1:200]) -cos(i) / sin(i)];
-c = [for(i = [0:360-1:200]) [(total_w-corner_r + corner_r*cos(i)), total_h-corner_r+corner_r*sin(i)]];
-rhs = [for(i = [0:360-1:200]) abs(rico[i]*(partial_w - c[i][0]) + c[i][1] - partial_h)];
-min_value = min(rhs);
-for(i = [0:360-1:200]){
-    if(rhs[i]==min_value){
-        a = i;
-        echo(a);
-        a = 316;
-
-        polygon([
-            [partial_w, partial_h-corner_r],
-            [total_w-corner_r+corner_r*cos(a), total_h-2*corner_r+corner_r*sin(a)],
-            [total_w-corner_r, total_h-2*corner_r+corner_r],
-            [partial_w, total_h-2*corner_r+corner_r],
-        ]);
-
-        difference(){
-            translate([total_w-corner_r,total_h-2*corner_r,0])
-            circle(r=corner_r);
-            square([15, total_h-2*corner_r+corner_r*sin(a)]);
+        translate([corner_r,0,0])
+        rotate(v=[0,0,1], a=180)
+        intersection(){
+            square(2*corner_r);
+        circle(r=corner_r);
         }
+
+        //translate([3.45,0,0])
+        translate([partial_w-corner_r,0,0])
+        rotate(v=[0,0,1], a=-90)
+        intersection(){
+            square(2*corner_r);
+            circle(r=corner_r);
+        }
+
+        translate([corner_r,total_h-2*corner_r,0])
+        rotate(v=[0,0,1], a=90)
+        intersection(){
+            square(2*corner_r);
+            circle(r=corner_r);
+        }
+
+        translate([corner_r,-corner_r,0])
+        square([partial_w-2*corner_r, corner_r]);
+
+        translate([corner_r, total_h-2*corner_r, 0])
+        square([partial_w-corner_r, corner_r]);
+
+        rico = [for(i = [0:360-1:200]) -cos(i) / sin(i)];
+        c = [for(i = [0:360-1:200]) [(total_w-corner_r + corner_r*cos(i)), total_h-corner_r+corner_r*sin(i)]];
+        rhs = [for(i = [0:360-1:200]) abs(rico[i]*(partial_w - c[i][0]) + c[i][1] - partial_h)];
+        min_value = min(rhs);
+        for(i = [0:360-1:200]){
+            if(rhs[i]==min_value){
+                a = i;
+                echo(a);
+                a = 316;
+
+                polygon([
+                    [partial_w, partial_h-corner_r],
+                    [total_w-corner_r+corner_r*cos(a), total_h-2*corner_r+corner_r*sin(a)],
+                    [total_w-corner_r, total_h-2*corner_r+corner_r],
+                    [partial_w, total_h-2*corner_r+corner_r],
+                ]);
+
+                difference(){
+                    translate([total_w-corner_r,total_h-2*corner_r,0])
+                    circle(r=corner_r);
+                    square([15, total_h-2*corner_r+corner_r*sin(a)]);
+                }
+            }
+        }
+        //rico = - cos(theta) / sin(theta);
+
+        // this is optimised iteratively
+
     }
 }
-//rico = - cos(theta) / sin(theta);
 
-// this is optimised iteratively
-
+module front_plate_straight_corners(total_w=13.75, partial_w=9.25, partial_h=7.75, corner_h=4.89, total_h=17.25, th=2) {
+    linear_extrude(th, convexity = 10){
+        // draw display plate in 2D
+        polygon(points=[
+            [0,0],
+            [0,total_h],
+            [total_w, total_h],
+            [total_w, total_h-corner_h],
+            [partial_w, partial_h],
+            [partial_w, 0],
+            ]);
+    }
 }
+
+module beam() {
+    total_height = 47;
+n_steps = 15;
+main_beam_width = 4; // TODO: check
+main_beam_depth = 2; // TODO: check
+
+step_depth = 0.75;
+step_width = 5;
+step_side_depth = 5;
+step_support_size = 0.5;
+    // draw main beam
+//translate([])
+translate([-main_beam_width/2, -main_beam_depth, 0]) // center beam
+cube([main_beam_width, main_beam_depth, total_height], center=false);
+
+// draw steps
+//   draw side beams of support
+translate([-main_beam_width/2, -step_side_depth+step_support_size, 0])
+cube([step_support_size, step_support_size, total_height], center=false);
+
+translate([-step_support_size+main_beam_width/2, -step_side_depth+step_support_size, 0])
+cube([step_support_size, step_support_size, total_height], center=false);
+
+//   draw steps
+module draw_step() {
+    translate([step_width/2, 0, 0])
+    translate([-step_depth/2,-step_side_depth/2,step_depth/2])
+    cube([step_depth, step_side_depth, step_depth], center=true);
+
+    translate([-step_width/2, 0, 0])
+    translate([step_depth/2,-step_side_depth/2,step_depth/2])
+    cube([step_depth, step_side_depth, step_depth], center=true);
+
+    translate([0,-step_side_depth,0])
+    translate([-step_width/2,0,0])
+    cube([step_width, step_depth, step_depth],center=false);
+}
+
+for(i = [0:n_steps-1]) {
+    translate([0,0,total_height - (n_steps-1)*total_height/n_steps - step_depth])
+    translate([0,0,i*total_height/n_steps])
+    draw_step();
+}
+
+translate([0,-2.5,0])
+cube([5,5,5],center=true);
+}
+
+module front_plate() {
+    color("grey")
+    difference() {
+        union(){
+            front_plate_straight_corners(total_w=13.75, partial_w=9.25, partial_h=7.75, corner_h=4.89, total_h=17.25, th=2);
+
+            // draw 5 light caps
+            for(i = [1:4]) {
+                translate([3.45, i*3.45, 0])
+                light_cap();
+            }
+
+            translate([10.3, 13.8])
+            light_cap();
+        }
+
+        // cut holes in display plate
+        for(i = [1:4]) {
+            translate([3.45, i*3.45, 0])
+            cylinder(h=40,r=1.05,center=true);
+        }
+
+        translate([10.3, 13.8])
+        cylinder(h=40,r=1.05,center=true);
+
+    }
+
+    color("black")
+    translate([2*3.45, 3.45,2])
+    handle();
+
+
+
+    //translate(-[13.75, 17.25,0]/2)
+    //front_plate_rounded_corners(total_w=13.75, partial_w=9.25, partial_h=7.75, corner_r=3.45, total_h=17.25, th=2);
+    color("white")
+    difference(){
+        translate([0.5, 0.5, 0])
+        front_plate_rounded_corners(total_w=13.75-1, partial_w=9.25-1, partial_h=7.75-0.5, corner_r=3.45-0.5, total_h=17.25-1, th=2.2);
+
+        translate([1, 1, -0.5])
+        front_plate_rounded_corners(total_w=13.75-2, partial_w=9.25-2, partial_h=7.75-1, corner_r=3.45-1, total_h=17.25-2, th=4);
+    }
 }
