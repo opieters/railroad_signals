@@ -32,6 +32,11 @@ n_beams_x = 9; // x
 
 front_grid_width = 9.25;
 
+grid_support_length = 17;
+grid_support_width = 1.5*grid_beam_width;
+grid_support_height = 1;
+grid_support_width2 = grid_support_height;
+grid_support_height2 = 1.5*grid_support_width;
 
 color("grey")
 main_beam(main_beam_width,main_beam_depth,main_beam_opening_depth,total_height,main_beam_step_width,main_beam_step_height,main_beam_opening_height);
@@ -46,6 +51,21 @@ translate([0,main_beam_depth/2,0])
 foot(foot_width = foot_width, foot_width_small = foot_width_small, foot_depth = foot_depth, foot_height1 = foot_height1, foot_height2 = foot_height2);
 
 color("grey")
-translate([0,-4,total_height-17.25-0.5])
+translate([0,-4,total_height-17.25])
 translate([-13.75/2,0,0])
 front_grid(grid_beam_width, grid_beam_height, n_beams_y, n_beams_x,front_grid_width);
+
+grid_spacing = (front_grid_width - grid_beam_width*n_beams_x) / (n_beams_x-1);
+front_grid_y = grid_spacing*(n_beams_y-1)+grid_beam_width*n_beams_y;
+
+color("grey")
+translate([0,-front_grid_y,0])
+translate([0,-4,total_height-17.25]){
+    translate([-13.75/2+2*(front_grid_width/n_beams_x+grid_beam_width/2),0,0])
+    grid_support_beam(grid_support_width, grid_support_width2, grid_support_height, grid_support_height2, grid_support_length);
+        
+    translate([-13.75/2+front_grid_width/2,0,0])
+    grid_support_beam(grid_support_width, grid_support_width2, grid_support_height, grid_support_height2, grid_support_length);
+}
+
+//cube([])

@@ -288,3 +288,14 @@ module front_grid(grid_beam_width, grid_beam_height, n_beams_y, n_beams_x,front_
         }
     }
 }
+
+module grid_support_beam(grid_support_width, grid_support_width2, grid_support_height, grid_support_height2, grid_support_length){
+    rotate(v=[0,1,0],a=180) {
+        difference() {
+            translate([-grid_support_width2/2,0,0])
+            cube([grid_support_width2, grid_support_length, grid_support_height2]);
+            translate([-grid_support_width/2,-grid_support_length,(grid_support_width2-grid_support_width)/2])
+            cube([grid_support_width, 3*grid_support_length, grid_support_height]);
+        }
+    }
+}
